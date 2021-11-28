@@ -110,18 +110,11 @@ def train(model, optimizer, epochs=1):
     model = model.to(device=device)  # move the model parameters to CPU/GPU
     for e in range(epochs):
         for t, (x, y) in enumerate(loader_train):
-            ##########################################################################
-            # TODO: YOUR CODE HERE
-            # (1) put model to training mode
-            # (2) move data to device, e.g. CPU or GPU
-            # (3) forward and get loss
-            # (4) Zero out all of the gradients for the variables which the optimizer
-            # will update.
-            # (5) the backwards pass: compute the gradient of the loss with
-            # respect to each  parameter of the model.
-            # (6)Actually update the parameters of the model using the gradients
-            # computed by the backwards pass.
-            ##########################################################################
+            optimizer.zero_grad()
+            outputs = model(x)
+            loss = loss_function(outputs, y)
+            loss.backward()
+            optimizer.step()
             if t % print_every == 0:
                 print('Epoch %d, Iteration %d, loss = %.4f' % (e, t, loss.item()))
                 test(loader_val, model)
@@ -147,18 +140,15 @@ def test(loader, model):
     model.eval()  # set model to evaluation mode
     with torch.no_grad():
         for x, y in loader:
-            ##########################################################################
-            # TODO: YOUR CODE HERE
-            # (1) move to device, e.g. CPU or GPU
-            # (2) forward and calculate scores and predictions
-            # (2) accumulate num_correct and num_samples
-            ##########################################################################
+            outputs = model(x)
+            outputs,y = outputs.to(device), y.to(device)
+            #predicted based on the model
+            _, predicted = torch.max(outputs.data, 1)
+            #updating number of samples
+            num_samples += y.size(0)
+            num_correct += (predicted == y).sum().item()
         acc = float(num_correct) / num_samples
         if loader.dataset.train and acc > best_acc:
-            ##########################################################################
-            # TODO: YOUR CODE HERE
-            # (4)Save best model on validation set for final test
-            ##########################################################################
             best_acc = acc
         print('Got %d / %d correct (%.2f)' % (num_correct, num_samples, 100 * acc))
 
@@ -197,8 +187,40 @@ optimizer = optim.SGD(model.parameters(), lr, momentum, weight_decay)
 **************************************************************************
 Finish your model and optimizer below.
 '''
-model = None
-optimizer = None
+
+class myNet(nn.Module):
+    def __init__(self):
+        super(myNet, self).__init__()
+        # Set up your own convnets.
+        #creating three convolutional layers and three fully connected layers with
+max pool and batch-normalization
+        self.conv1 = nn.Conv2d(3, 32, 5)
+        self.conv1_bn = nn.BatchNorm2d(32)
+        self.dropout1 = nn.Dropout2d(0.25)
+        self.pool = nn.MaxPool2d(2, 2)
+self.conv2 = nn.Conv2d(32, 70, 5)
+        self.conv2_bn = nn.BatchNorm2d(70)
+        #creating a downsampling layer
+        self.conv3 = nn.Conv2d(70, 64, 5)
+        self.conv3_bn = nn.BatchNorm2d(64)
+        self.dropout2 = nn.Dropout2d(0.25)
+        self.fc1 = nn.Linear(576, 120)
+        self.fc2 = nn.Linear(120, 84)
+        self.fc3 = nn.Linear(84, 10)
+    def forward(self, x):
+        # forward
+        x = self.pool(F.relu(self.dropout1(self.conv1_bn(self.conv1(x)))))
+        x = self.dropout2(self.conv2_bn(self.conv2(x)))
+        x = self.pool(F.relu(self.conv3_bn(self.conv3(x))))
+        x = x.view(-1, 576)
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = F.relu(self.fc3(x))
+        out = x
+        return out
+model = myNet()
+#setting our optimizier
+optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
 ##########################################################################
 
 # You should get at least 70% accuracy
@@ -207,6 +229,8 @@ train(model, optimizer, epochs=10)
 ##########################################################################
 # TODO: YOUR CODE HERE
 # load saved model to best_model for final testing
-best_model = None
+PATH = './cifar_net.pth'
+best_model = myNet()
+best_model.load_state_dict(torch.load(PATH))
 ##########################################################################
 test(loader_test, best_model)
