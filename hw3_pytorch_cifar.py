@@ -8,8 +8,10 @@ from torch.utils.data import sampler
 import torchvision.datasets as dset
 import torchvision.transforms as T
 
+import matplotlib.pyplot as plt
 import numpy as np
 import os
+os.environ['KMP_DUPLICATE_LIB_OK']='True'
 import math
 
 '''
