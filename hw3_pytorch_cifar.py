@@ -194,13 +194,12 @@ class myNet(nn.Module):
     def __init__(self):
         super(myNet, self).__init__()
         # Set up your own convnets.
-        #creating three convolutional layers and three fully connected layers with
-max pool and batch-normalization
+        #creating three convolutional layers and three fully connected layers with max pool and batch-normalization
         self.conv1 = nn.Conv2d(3, 32, 5)
         self.conv1_bn = nn.BatchNorm2d(32)
         self.dropout1 = nn.Dropout2d(0.25)
         self.pool = nn.MaxPool2d(2, 2)
-self.conv2 = nn.Conv2d(32, 70, 5)
+        self.conv2 = nn.Conv2d(32, 70, 5)
         self.conv2_bn = nn.BatchNorm2d(70)
         #creating a downsampling layer
         self.conv3 = nn.Conv2d(70, 64, 5)
@@ -209,6 +208,7 @@ self.conv2 = nn.Conv2d(32, 70, 5)
         self.fc1 = nn.Linear(576, 120)
         self.fc2 = nn.Linear(120, 84)
         self.fc3 = nn.Linear(84, 10)
+
     def forward(self, x):
         # forward
         x = self.pool(F.relu(self.dropout1(self.conv1_bn(self.conv1(x)))))
@@ -220,6 +220,7 @@ self.conv2 = nn.Conv2d(32, 70, 5)
         x = F.relu(self.fc3(x))
         out = x
         return out
+
 model = myNet()
 #setting our optimizier
 optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)

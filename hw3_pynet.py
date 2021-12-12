@@ -1,6 +1,6 @@
 import numpy as np
 from math import *
-#I collaborated with Aazam Mohsin and Shyamsunder Sriram on this HW
+
 '''
  Linear
  Implementation of the linear layer (also called fully connected layer),
@@ -15,43 +15,23 @@ from math import *
  input_channel -- integer, number of input channels
  output_channel -- integer, number of output channels
 '''
+
 class Linear(object):
  def __init__(self, input_channel, output_channel):
      self.input_channel = input_channel
      self.output_channel = output_channel
      self.init_param()
+
  def init_param(self):
      self.weight = (np.random.randn(self.input_channel,self.output_channel) *
      sqrt(2.0/(self.input_channel+self.output_channel))).astype(np.float32)
      self.bias = np.zeros((self.output_channel))
- '''
- Forward computation of linear layer. (5 points)
- Note: You may want to save some intermediate variables to class
- membership (self.) for reuse in backward computation.
- Arguments:
- input -- numpy array of shape (N, input_channel)
- Output:
- output -- numpy array of shape (N, output_channel)
- '''
+
  def forward(self, input):
      output = np.dot(input, self.weight) + self.bias
      self.input = input
      return output
- '''
- Backward computation of linear layer. (5 points)
- You need to compute the gradient w.r.t input, weight, and bias.
- You need to reuse variables from forward computation to compute the
- backward gradient.
- Arguments:
- grad_output -- numpy array of shape (N, output_channel)
- Output:
- grad_input -- numpy array of shape (N, input_channel), gradient w.r.t
-input
- grad_weight -- numpy array of shape (input_channel, output_channel),
-gradient w.r.t weight
- grad_bias -- numpy array of shape (output_channel), gradient w.r.t
-bias
- '''
+
  def backward(self, grad_output):
      m = self.input_channel
      N = grad_output.shape[0]
