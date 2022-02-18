@@ -109,6 +109,7 @@ Inputs:
 Returns: Nothing, but prints model accuracies during training.
 '''
 def train(model, optimizer, epochs=1):
+    loss_function = nn.CrossEntropyLoss()
     model = model.to(device=device)  # move the model parameters to CPU/GPU
     for e in range(epochs):
         for t, (x, y) in enumerate(loader_train):
@@ -233,6 +234,7 @@ train(model, optimizer, epochs=10)
 # TODO: YOUR CODE HERE
 # load saved model to best_model for final testing
 PATH = './cifar_net.pth'
+torch.save(model.state_dict(), PATH)
 best_model = myNet()
 best_model.load_state_dict(torch.load(PATH))
 ##########################################################################
