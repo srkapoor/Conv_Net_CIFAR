@@ -195,7 +195,7 @@ class myNet(nn.Module):
         super(myNet, self).__init__()
         # Set up your own convnets.
         #creating three convolutional layers and three fully connected layers with max pool and batch-normalization
-        self.conv1 = nn.Conv2d(3, 32, 5)
+        self.conv1 = nn.Conv2d(3, 32, 4)
         self.conv1_bn = nn.BatchNorm2d(32)
         self.dropout1 = nn.Dropout2d(0.25)
         self.pool = nn.MaxPool2d(2, 2)
