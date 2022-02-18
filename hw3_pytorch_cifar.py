@@ -14,50 +14,7 @@ import os
 os.environ['KMP_DUPLICATE_LIB_OK']='True'
 import math
 
-'''
-In this section, you can experiment with a ConvNet architecture of your own
-design.  Here, it is your job to experiment with architectures, hyperparameters,
-loss functions, and optimizers to train a model.  Considering the training time,
-especially on CPU, we only require you achieve at least 70% accuracy on the
-CIFAR-10 validation set (loader_test in this hw3) within 10 epochs.
-You must complete the test and train functions below.
-You can use either nn.Module or nn.Sequential API during model design.
-- Layers in torch.nn package: http://pytorch.org/docs/stable/nn.html
-- Activations: http://pytorch.org/docs/stable/nn.html#non-linear-activations
-- Loss functions: http://pytorch.org/docs/stable/nn.html#loss-functions
-- Optimizers: http://pytorch.org/docs/stable/optim.html
 
-To finish this section step by step, you need to:
-(1) Prepare data by building dataset and dataloader. (alreadly provided below)
-(2) Specify devices to train on (e.g. CPU or GPU). (alreadly provided below)
-(3) Implement training code (6 points) & testing code (6 points) including
-    saving and loading of models.
-(4) Construct a model (12 points) and choose an optimizer (3 points).
-(5) Describe what you did, any additional features that you implemented,
-    and/or any graphs that you made in the process of training and
-    evaluating your network.  Report final test accuracy @10 epochs in a
-    writeup: hw3.pdf (3 points).
-'''
-
-'''
-Data Preparation (NO need to modify):
-
-(1) The torchvision.transforms package provides tools for preprocessing data
-    and for performing data augmentation; here we set up a transform to
-    preprocess the data by subtracting the mean RGB value and dividing by the
-    standard deviation of each RGB value; we've hardcoded the mean and std.
-
-(2) We set up a Dataset object for each split (train / val / test); Datasets
-    load training examples one at a time, so we wrap each Dataset in a
-    DataLoader which iterates through the Dataset and forms minibatches.  We
-    divide the CIFAR-10 training set into train and val sets by passing a
-    Sampler object to the DataLoader, telling how it should sample from the
-    underlying Dataset.
-
-(3) Note that, for the first time run, by seeting download as True, Pytorch
-    will check the 'cifar_data' directory to decide if the CIFAR dataset needs
-    to be downloaded.
-'''
 NUM_TRAIN = 49000
 transform = T.Compose([
                 T.ToTensor(),
@@ -76,18 +33,10 @@ cifar10_test = dset.CIFAR10('./cifar_data', train=False, download=True,
 loader_test = DataLoader(cifar10_test, batch_size=64)
 
 '''
-Device specification (NO need to modify).
-You have an option to use GPU by setting the flag to True below.
-
-It is NOT necessary to use GPU for this assignment.  Note that if your computer does not have CUDA enabled,
-torch.cuda.is_available() will return False and this notebook will fallback to
-CPU mode.
-
-The global variables dtype and device will control the data types throughout
-this assignment.
+Device specification
 '''
 USE_GPU = False
-dtype = torch.float32 # we will be using float throughout this tutorial
+dtype = torch.float32
 if USE_GPU and torch.cuda.is_available():
     device = torch.device('cuda')
 else:
@@ -98,7 +47,7 @@ print('using device:', device)
 best_acc = 0
 
 '''
-Training (6 points)
+Training :
 Train a model on CIFAR-10 using the PyTorch Module API.
 
 Inputs:
@@ -123,7 +72,7 @@ def train(model, optimizer, epochs=1):
                 test(loader_val, model)
                 print()
 '''
-Testing (6 points)
+Testing :
 Test a model on CIFAR-10 using the PyTorch Module API.
 
 Inputs:
@@ -155,41 +104,6 @@ def test(loader, model):
             best_acc = acc
         print('Got %d / %d correct (%.2f)' % (num_correct, num_samples, 100 * acc))
 
-##########################################################################
-# TODO: YOUR CODE HERE
-'''
-Design/choose your own model structure (12 points) and optimizer (3 points).
-Below are things you may want to try:
-(1) Model hyperparams:
-- Filter size, Number of filters and layers. You need to make careful choices to
-tradeoff the computational efficiency and accuracy (especially in this assignment).
-- Pooling vs Strided Convolution
-- Batch normalization
-
-(2) New Network architecture:
-- You can borrow some cool ideas from novel convnets design, such as ResNet where
-the input from the previous layer is added to the output
-https://arxiv.org/abs/1512.03385
-- Note: Don't directly use the existing network design.
-
-(3) Different optimizers like SGD, Adam, Adagrad, RMSprop, etc.
-**************************************************************************
-# Basic Model and Optimizer.
-Feel free to use more complicated ones to fit your model design.
-class myNet(nn.Module):
-    def __init__(self):
-        super(myNet, self).__init__()
-        # Set up your own convnets.
-
-    def forward(self, x):
-        # forward
-        return out
-model = myNet()
-optimizer = optim.SGD(model.parameters(), lr, momentum, weight_decay)
-# Describe your design details in the writeup hw3.pdf. (3 points)
-**************************************************************************
-Finish your model and optimizer below.
-'''
 
 class myNet(nn.Module):
     def __init__(self):
@@ -229,13 +143,9 @@ optimizer = optim.SGD(model.parameters(), lr=0.01, momentum=0.9)
 
 # You should get at least 70% accuracy
 train(model, optimizer, epochs=10)
-
-##########################################################################
-# TODO: YOUR CODE HERE
 # load saved model to best_model for final testing
 PATH = './cifar_net.pth'
 torch.save(model.state_dict(), PATH)
 best_model = myNet()
 best_model.load_state_dict(torch.load(PATH))
-##########################################################################
 test(loader_test, best_model)
